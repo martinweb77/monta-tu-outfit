@@ -1,0 +1,10 @@
+button {
+  display: block;
+  margin: 6px;
+  padding: 10px;
+  width: 220px;
+}
+
+.wizard, .preview {
+  padding: 20px;
+}
