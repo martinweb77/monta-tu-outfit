@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Monta tu Outfit</title>
+<meta name="description" content="Monta tu outfit — prototipo minimalista" />
+<style>
+  :root{
+    --bg:#ffffff; --muted:#666; --accent:#d1cfc5; --black:#111;
+    --card:#fbfbfb;
+  }
+  html,body{height:100%;margin:0;background:var(--bg);font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;}
+  .app{max-width:980px;margin:18px auto;padding:18px;}
+  header{display:flex;align-items:center;gap:14px;padding:8px 0;border-bottom:1px solid #eee}
+  .logo{width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#fff,#f3f3f3);border-radius:8px}
+  .logo svg{width:28px;height:28px}
+  h1{font-size:20px;margin:0;color:var(--black)}
+  .topbar{display:flex;gap:8px;margin-left:auto}
+  .tab{padding:8px 12px;border-radius:8px;background:transparent;border:1px solid transparent;cursor:pointer}
+  .tab.active{background:var(--accent);border-color:var(--accent);font-weight:600}
+  main{display:grid;grid-template-columns:1fr 340px;gap:18px;margin-top:18px}
+  .panel{background:var(--card);padding:14px;border-radius:10px;border:1px solid #eee}
+  h2{margin:0 0 8px 0;font-size:16px}
+  .grid{display:grid;gap:10px}
+  select,button,input{padding:10px;border-radius:8px;border:1px solid #ddd;background:white}
+  .options{display:flex;flex-wrap:wrap;gap:8px}
+  .option-btn{padding:8px 10px;border-radius:8px;border:1px solid #e6e6e6;background:#fff;cursor:pointer}
+  .option-btn.selected{border-color:#111;background:#f2f2f2}
+  .muted{color:var(--muted);font-size:13px}
+  .preview-row{display:flex;flex-direction:column;gap:6px}
+  .preview-item{display:flex;justify-content:space-between;align-items:center;padding:8px;border-radius:8px;border:1px solid #f0f0f0;background:#fff}
+  .actions{display:flex;gap:8px;margin-top:12px}
+  .small{font-size:13px;padding:6px 10px}
+  footer{margin-top:14px;color:var(--muted);font-size:13px}
+  /* responsive */
+  @media (max-width:880px){main{grid-template-columns:1fr;}.topbar{display:none}}
+</style>
+</head>
+<body>
+  <div class="app" id="app">
+    <header>
+      <div class="logo" title="Monta tu Outfit">
+        <!-- icon pantalón tipo vaquero (simple) -->
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 3h3v3h6V3h3v6.5c0 2.5-1.5 4-3.5 4S11 11 9 9.5 6 9.5 6 9.5V3z" stroke="#111" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M6 21v-6c0-1.5 1-3.5 3-3.5s3 2 6 2 3.5-1.5 3.5-4V3" stroke="#111" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
+        </svg>
+      </div>
+      <div>
+        <h1>Monta tu Outfit</h1>
+        <div class="muted">Prototipo — minimal, tema claro</div>
+      </div>
+      <div class="topbar" id="topbar"></div>
+    </header>
+
+    <main>
+      <section class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <h2>1) Selecciona pantalón</h2>
+          <div class="muted">Base: vaquero slim gris oscuro</div>
+        </div>
+
+        <div class="grid" style="margin-top:8px">
+          <div>
+            <select id="pantsSelect"></select>
+          </div>
+
+          <div>
+            <div style="display:flex;gap:8px">
+              <button class="tab active" data-tab="informal">Informal</button>
+              <button class="tab" data-tab="semiformal">Semiformal</button>
+              <button class="tab" data-tab="formal">Formal</button>
+            </div>
+          </div>
+
+          <div>
+            <h2>2) Parte de arriba</h2>
+            <div id="topsArea" class="options"></div>
+            <div class="muted" style="margin-top:6px">Elige camisa, polo, camiseta o jersey</div>
+          </div>
+
+          <div id="blazerBlock" style="display:block">
+            <h2>3) Blazer (opcional)</h2>
+            <div id="blazersArea" class="options"></div>
+            <div class="muted" style="margin-top:6px">Aparece sólo si procede</div>
+          </div>
+
+          <div>
+            <h2>4) Abrigo / Chaqueta (opcional)</h2>
+            <div id="coatsArea" class="options"></div>
+          </div>
+
+          <div>
+            <h2>5) Calzado</h2>
+            <div id="shoesArea" class="options"></div>
+          </div>
+
+          <div>
+            <h2>6) Calcetín (sugerido)</h2>
+            <div id="socksArea" class="options"></div>
+          </div>
+
+          <div>
+            <h2>7) Cinturón</h2>
+            <div id="beltsArea" class="options"></div>
+          </div>
+
+          <div>
+            <div class="actions">
+              <button id="saveBtn" class="small">Guardar outfit</button>
+              <button id="exportBtn" class="small">Exportar JSON</button>
+              <button id="clearBtn" class="small">Limpiar</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel">
+        <h2>Previsualización</h2>
+        <div id="preview" class="preview-row"></div>
+        <div style="margin-top:10px">
+          <div class="muted">Rating: la app sugiere combinaciones coherentes; puedes cambiar manualmente.</div>
+        </div>
+        <div style="margin-top:12px">
+          <h2>Outfits guardados</h2>
+          <div id="savedList" style="display:grid;gap:8px;margin-top:8px"></div>
+        </div>
+      </aside>
+    </main>
+
+    <footer>
+      <div class="muted">Datos guardados localmente en tu navegador. Puedes exportarlos y subirlos después.</div>
+    </footer>
+  </div>
+
+<script>
+/* ====== DATOS (extraídos de tus preferencias) ====== */
+const DB = {
+  pants:[
+    {id:'pant-01', name:'Vaquero slim gris oscuro', formality:['informal','semiformal','formal']},
+    {id:'pant-02', name:'Vaquero negro skinny', formality:['informal','semiformal']}
+  ],
+  tops:[
+    {id:'t-shirt-white', category:'tshirt', name:'Camiseta blanca', formality:['informal']},
+    {id:'t-shirt-black', category:'tshirt', name:'Camiseta negra', formality:['informal']},
+    {id:'t-shirt-navy', category:'tshirt', name:'Camiseta azul marino', formality:['informal']},
+    {id:'t-shirt-forest', category:'tshirt', name:'Camiseta verde bosque', formality:['informal']},
+
+    {id:'polo-white', category:'polo', name:'Polo blanco', formality:['informal','semiformal']},
+    {id:'polo-black', category:'polo', name:'Polo negro', formality:['informal','semiformal']},
+    {id:'polo-beige', category:'polo', name:'Polo beige', formality:['informal','semiformal']},
+    {id:'polo-burdeos', category:'polo', name:'Polo burdeos', formality:['informal','semiformal']},
+    {id:'polo-navy', category:'polo', name:'Polo azul marino', formality:['informal','semiformal']},
+
+    {id:'jersey-white', category:'jersey', name:'Jersey fino blanco', formality:['semiformal']},
+    {id:'jersey-camel', category:'jersey', name:'Jersey fino camel', formality:['semiformal']},
+    {id:'jersey-burdeos', category:'jersey', name:'Jersey fino burdeos', formality:['semiformal']},
+    {id:'jersey-black', category:'jersey', name:'Jersey fino negro', formality:['semiformal']},
+    {id:'jersey-maroon', category:'jersey', name:'Jersey granate-morado', formality:['semiformal']},
+    {id:'turtleneck-black', category:'turtleneck', name:'Cuello vuelto negro', formality:['semiformal','formal']},
+    {id:'turtleneck-navy', category:'turtleneck', name:'Cuello vuelto azul marino', formality:['semiformal','formal']},
+    {id:'zipper-beige', category:'zipper', name:'Jersey cremallera beige', formality:['semiformal']}
+  ],
+  blazers:[
+    {id:'blz-navy', name:'Blazer azul marino'},
+    {id:'blz-maren', name:'Blazer gris marengo'},
+    {id:'blz-lightblue', name:'Blazer azul claro'},
+    {id:'blz-lightgray', name:'Blazer gris claro'}
+  ],
+  coats:[
+    {id:'coat-gd', name:'Abrigo largo gris oscuro'},
+    {id:'coat-camel', name:'Abrigo largo camel'},
+    {id:'coat-black', name:'Abrigo largo negro'},
+    {id:'coat-pana', name:'Pana/paño negro'},
+    {id:'gabardina', name:'Gabardina beige'},
+    {id:'suede', name:'Cazadora de ante marrón oscuro'},
+    {id:'wool-terra', name:'Chaqueta de lana color tierra'},
+    {id:'parka-navy', name:'Parka azul marino'},
+    {id:'leather-black', name:'Chaqueta de cuero negra'},
+    {id:'bomber-black', name:'Bomber negra'},
+    {id:'shirt-over-beige', name:'Sobrecamisa beige'},
+    {id:'shirt-over-caqui', name:'Sobrecamisa caqui oscuro'}
+  ],
+  shoes:[
+    {id:'sneaker-white', type:'sneaker', name:'Zapatillas blancas'},
+    {id:'sneaker-beige', type:'sneaker', name:'Zapatillas beige urban'},
+    {id:'sneaker-black', type:'sneaker', name:'Zapatillas negras'},
+    {id:'sneaker-brown', type:'sneaker', name:'Zapatillas marrón oscuro'},
+    {id:'chelsea-black', type:'chelsea', name:'Botín Chelsea negro'},
+    {id:'chelsea-brown', type:'chelsea', name:'Botín Chelsea marrón oscuro'},
+    {id:'derby-black', type:'derby', name:'Derby/Oxford negro'},
+    {id:'derby-brown', type:'derby', name:'Derby/Oxford marrón oscuro'},
+    {id:'derby-burdeos', type:'derby', name:'Derby burdeos'}
+  ],
+  socks:[
+    {id:'sock-inv', name:'Invisible'},
+    {id:'sock-ankle-black', name:'Tobillero negro'},
+    {id:'sock-ankle-gl', name:'Tobillero gris claro'},
+    {id:'sock-ankle-gm', name:'Tobillero gris medio'},
+    {id:'sock-ankle-gd', name:'Tobillero gris oscuro'},
+    {id:'sock-ankle-beige', name:'Tobillero beige claro'},
+    {id:'sock-crew-black', name:'Crew negro'},
+    {id:'sock-crew-gd', name:'Crew gris oscuro'},
+    {id:'sock-crew-gm', name:'Crew gris medio'},
+    {id:'sock-crew-br', name:'Crew marrón oscuro'}
+  ],
+  belts:[
+    {id:'belt-black', name:'Cinturón negro'},
+    {id:'belt-br-dark', name:'Cinturón marrón oscuro'},
+    {id:'belt-tr-br-light', name:'Cinturón trenzado marrón claro'},
+    {id:'belt-tr-black', name:'Cinturón trenzado negro'},
+    {id:'belt-leather-black', name:'Cinturón cuero negro (casual)'},
+    {id:'belt-leather-br', name:'Cinturón cuero marrón oscuro (casual)'},
+    {id:'belt-burdeos', name:'Cinturón burdeos'}
+  ]
+};
+
+/* ====== ESTADO UI ====== */
+let state = {
+  pant: DB.pants[0].id,
+  formal: 'semiformal',
+  top: null,
+  blazer: null,
+  coat: null,
+  shoe: null,
+  sock: null,
+  belt: null
+};
+
+/* ====== HELPERS UI ====== */
+function $(id){return document.getElementById(id)}
+function makeBtn(item, onClick, selectedId){
+  const b = document.createElement('button');
+  b.className='option-btn' + (selectedId===item.id?' selected':'');
+  b.textContent = item.name;
+  b.onclick = ()=> onClick(item);
+  return b;
+}
+
+/* ====== RENDERERS ====== */
+function renderPants(){
+  const sel = $('pantsSelect');
+  sel.innerHTML='';
+  DB.pants.forEach(p=>{
+    const opt = document.createElement('option');
+    opt.value=p.id; opt.textContent=p.name;
+    sel.appendChild(opt);
+  });
+  sel.value = state.pant;
+  sel.onchange = e=>{ state.pant = e.target.value; renderAll(); };
+}
+
+function renderTabs(){
+  document.querySelectorAll('.tab').forEach(t=>{
+    t.classList.toggle('active', t.dataset.tab===state.formal);
+    t.onclick = ()=>{ state.formal = t.dataset.tab; state.top=null; state.blazer=null; renderAll(); };
+  });
+}
+
+function topsForFormal(){
+  return DB.tops.filter(t=> t.formality.includes(state.formal));
+}
+
+function renderTops(){
+  const area = $('topsArea'); area.innerHTML='';
+  topsForFormal().forEach(t=>{
+    const btn = makeBtn(t, (item)=>{ state.top = item.id; state.blazer=null; renderAll(); }, state.top);
+    area.appendChild(btn);
+  });
+  if(topsForFormal().length===0) area.innerHTML='<div class="muted">No hay partes de arriba para esta formalidad.</div>';
+}
+
+function blazerAllowed(){
+  if(!state.top) return false;
+  const top = DB.tops.find(x=>x.id===state.top);
+  if(!top) return false;
+  // rules: no blazer with polo or t-shirt or sweatshirt
+  if(['polo','tshirt','sweatshirt'].includes(top.category)) return false;
+  return (state.formal==='semiformal' || state.formal==='formal');
+}
+
+function renderBlazers(){
+  const block = $('blazerBlock');
+  block.style.display = blazerAllowed() ? 'block' : 'none';
+  const area = $('blazersArea'); area.innerHTML='';
+  if(!blazerAllowed()) return;
+  DB.blazers.forEach(b=>{
+    const btn = makeBtn(b, (it)=>{ state.blazer = it.id; renderAll(); }, state.blazer);
+    area.appendChild(btn);
+  });
+}
+
+function renderCoats(){
+  const area = $('coatsArea'); area.innerHTML='';
+  DB.coats.forEach(c=>{
+    const btn = makeBtn(c, (it)=>{ state.coat = it.id; renderAll(); }, state.coat);
+    area.appendChild(btn);
+  });
+}
+
+function renderShoes(){
+  const area = $('shoesArea'); area.innerHTML='';
+  DB.shoes.forEach(s=>{
+    const btn = makeBtn(s, (it)=>{ state.shoe = it.id; state.sock=null; state.belt=null; renderAll(); }, state.shoe);
+    area.appendChild(btn);
+  });
+}
+
+function suggestedSocksFor(shoeId){
+  if(!shoeId) return [];
+  const shoe = DB.shoes.find(s=>s.id===shoeId);
+  if(!shoe) return ['sock-ankle-gl','sock-inv'];
+  if(shoe.type==='sneaker') return ['sock-inv','sock-ankle-gl','sock-ankle-gm'];
+  if(shoe.type==='chelsea') return ['sock-crew-black','sock-crew-gd'];
+  return ['sock-crew-gd','sock-crew-black'];
+}
+
+function renderSocks(){
+  const area = $('socksArea'); area.innerHTML='';
+  const sugg = suggestedSocksFor(state.shoe);
+  sugg.forEach(id=>{
+    const s = DB.socks.find(x=>x.id===id);
+    if(s){
+      const btn = makeBtn(s, (it)=>{ state.sock = it.id; renderAll(); }, state.sock);
+      area.appendChild(btn);
+    }
+  });
+}
+
+function suggestedBeltFor(shoeId){
+  if(!shoeId) return null;
+  const shoe = DB.shoes.find(s=>s.id===shoeId);
+  if(!shoe) return 'belt-br-dark';
+  if(shoe.name.toLowerCase().includes('negra')) return 'belt-black';
+  if(shoe.name.toLowerCase().includes('marrón')||shoe.name.toLowerCase().includes('marron')) return 'belt-br-dark';
+  if(shoe.name.toLowerCase().includes('burdeos')) return 'belt-burdeos';
+  return 'belt-br-dark';
+}
+
+function renderBelts(){
+  const area = $('beltsArea'); area.innerHTML='';
+  DB.belts.forEach(b=>{
+    const btn = makeBtn(b, (it)=>{ state.belt = it.id; renderAll(); }, state.belt);
+    area.appendChild(btn);
+  });
+}
+
+/* ====== Preview & Save ====== */
+function renderPreview(){
+  const p = $('preview'); p.innerHTML='';
+  const mapGet = (collection,id)=> collection.find(x=>x.id===id)?.name || '—';
+  const items = [
+    ['Pantalón', mapGet(DB.pants, state.pant)],
+    ['Parte arriba', mapGet(DB.tops, state.top)],
+    ['Blazer', mapGet(DB.blazers, state.blazer)],
+    ['Abrigo', mapGet(DB.coats, state.coat)],
+    ['Calzado', mapGet(DB.shoes, state.shoe)],
+    ['Calcetín', mapGet(DB.socks, state.sock)],
+    ['Cinturón', mapGet(DB.belts, state.belt)]
+  ];
+  items.forEach(([k,v])=>{
+    const d = document.createElement('div'); d.className='preview-item';
+    d.innerHTML = `<div style="font-weight:600">${k}</div><div class="muted">${v}</div>`;
+    p.appendChild(d);
+  });
+}
+
+function saveOutfit(){
+  const saved = JSON.parse(localStorage.getItem('mt_outfits_v1')||'[]');
+  const o = {...state, created: Date.now()};
+  saved.push(o); localStorage.setItem('mt_outfits_v1', JSON.stringify(saved));
+  renderSaved();
+  alert('Outfit guardado ✔');
+}
+
+function renderSaved(){
+  const area = $('savedList'); area.innerHTML='';
+  const saved = JSON.parse(localStorage.getItem('mt_outfits_v1')||'[]').slice().reverse();
+  if(saved.length===0){ area.innerHTML='<div class="muted">Sin outfits guardados</div>'; return;}
+  saved.forEach((s, idx)=>{
+    const wrap = document.createElement('div'); wrap.className='preview-item';
+    wrap.innerHTML = `<div style="font-weight:600">${new Date(s.created).toLocaleString()}</div><div class="muted">${DB.pants.find(p=>p.id===s.pant)?.name || ''} · ${DB.tops.find(t=>t.id===s.top)?.name || ''}</div>`;
+    area.appendChild(wrap);
+  });
+}
+
+function exportJSON(){
+  const saved = localStorage.getItem('mt_outfits_v1') || '[]';
+  const blob = new Blob([saved], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'mt_outfits.json'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* ====== boot ====== */
+function renderAll(){
+  renderPants();
+  renderTabs();
+  renderTops();
+  renderBlazers();
+  renderCoats();
+  renderShoes();
+  renderSocks();
+  renderBelts();
+  renderPreview();
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  // wire buttons
+  $('saveBtn').onclick = saveOutfit;
+  $('exportBtn').onclick = exportJSON;
+  $('clearBtn').onclick = ()=>{ state={...state, top:null, blazer:null, coat:null, shoe:null, sock:null, belt:null}; renderAll(); };
+
+  // initialize selects and ui
+  renderAll();
+  renderSaved();
+});
+</script>
+</body>
+</html>
